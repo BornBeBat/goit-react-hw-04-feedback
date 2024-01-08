@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState } from 'react';
 import {
   FeedbackOptions,
   StatContainer,
@@ -7,39 +7,45 @@ import {
 import { Feedback, Title } from './App.styled';
 import { countTotalFeedback } from 'utils';
 
-export class App extends Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
-  };
+export const App = () => {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
+  const stats = { good, neutral, bad };
 
-  onLeaveFeedback = option => {
-    this.setState(prevState => ({
-      [option]: prevState[option] + 1,
-    }));
+  const onLeaveFeedback = elem => {
+    switch (elem) {
+      case 'good':
+        setGood(prev => prev + 1);
+        break;
+      case 'neutral':
+        setNeutral(prev => prev + 1);
+        break;
+      case 'bad':
+        setBad(prev => prev + 1);
+        break;
+      default:
+        break;
+    }
   };
-
-  render() {
-    return (
-      <Feedback>
-        <Title>Please leave feedback</Title>
-        <FeedbackOptions
-          options={Object.keys(this.state)}
-          onClick={this.onLeaveFeedback}
+  return (
+    <Feedback>
+      <Title>Please leave feedback</Title>
+      <FeedbackOptions
+        options={Object.keys(stats)}
+        onClick={onLeaveFeedback}
+      />
+      <Title>Statistics</Title>
+      {countTotalFeedback(stats) > 0 ? (
+        <StatContainer
+          options={{
+            ...stats,
+            total: countTotalFeedback(stats),
+          }}
         />
-        <Title>Statistics</Title>
-        {countTotalFeedback(this.state) > 0 ? (
-          <StatContainer
-            options={{
-              ...this.state,
-              total: countTotalFeedback(this.state),
-            }}
-          />
-        ) : (
-          <Notification message="There is no feedback" />
-        )}
-      </Feedback>
-    );
-  }
-}
+      ) : (
+        <Notification message="There is no feedback" />
+      )}
+    </Feedback>
+  );
+};
